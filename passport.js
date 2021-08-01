@@ -1,5 +1,6 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
+const bcrypt = require("bcrypt");
 
 //Requerimos el servicio de UserService y lo instanciamos, para poder acceder al método que va a pegar contra la db.
 const UserService = require("./services/userService");
@@ -19,13 +20,16 @@ passport.use(
     },
     async (username, password, cb) => {
       try {
-        const userData = await UserInstance.getUserByName(username);
-
+        const userData = await UserInstance.getUserByName(
+          username.toLowerCase()
+        );
         if (!userData) {
+          console.log("Entró al primero");
           return cb(null, false); // Si no hay userData este usuario no se puede loguear
         }
-
-        if (userData.password !== password) {
+        const compare = await bcrypt.compare(password, userData.password);
+        if (!compare) {
+          console.log("Entro al segundo");
           return cb(null, false); //Si usarData.password (la query de la db) es diferente a la password ingresada en la ruta,  el usuario no se puede loguear.
         }
 
@@ -42,7 +46,6 @@ passport.use(
 passport.serializeUser((user, cb) => {
   return cb(null, user.name);
 });
-
 
 //El deserialize user, tiene que ser un string.
 passport.deserializeUser(async (name, cb) => {

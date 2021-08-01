@@ -10,7 +10,8 @@ class UserController {
       try {
         //Mando un objeto, copio body,  y le piso la propiedad name, por mi name en lowercase
         const user = await this.userService.createUser({ ...body, name });
-        return res.sendStatus(200);
+        console.log(user);
+        res.status(200).json(user);
       } catch (e) {
         console.log(e);
         return res.sendStatus(500);

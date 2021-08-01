@@ -7,12 +7,16 @@ class UserService {
     return query;
   }
 
-  createUser(data) {
-    bcrypt.hash(data.password, 10).then((hash) => {
+  async createUser(data) {
+    try {
+      const hash = await bcrypt.hash(data.password, 10);
       data.password = hash;
       const newUser = new User(data);
+      console.log(newUser);
       return newUser.save();
-    });
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
 
